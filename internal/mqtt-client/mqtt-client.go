@@ -2,6 +2,7 @@ package mqtt_client
 
 import (
 	"fmt"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
