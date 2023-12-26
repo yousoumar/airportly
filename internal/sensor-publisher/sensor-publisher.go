@@ -19,7 +19,7 @@ func PublishSensorValue(client mqtt.Client, sensorId int, sensorValueName string
 		timestamp := time.Now()
 		value += rand.Float64()*2*noiseAmplitude - noiseAmplitude
 
-		mqttClient.Publish(client, "{\"sensorId\":\""+fmt.Sprintf("%d", sensorId)+"\",\"airportId\":\""+airportIata+"\",\"sensorType\":\""+sensorValueName+"\",\"value\":\""+fmt.Sprintf("%.2f", value)+"\",\"timestamp\":\""+timestamp.String()+"\"}")
+		mqttClient.Publish(client, "{\"sensorId\":\""+fmt.Sprintf("%d", sensorId)+"\",\"airportId\":\""+airportIata+"\",\"sensorType\":\""+sensorValueName+"\",\"value\":\""+fmt.Sprintf("%.2f", value)+"\",\"timestamp\":\""+timestamp.Format("2006-01-02T15:04:05")+"\"}")
 		time.Sleep(time.Duration(interval) * time.Second)
 	}
 }
