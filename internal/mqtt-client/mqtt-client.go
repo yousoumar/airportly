@@ -32,9 +32,8 @@ func GetMqttClient(clientId string) mqtt.Client {
 	return client
 }
 
-func Publish(client mqtt.Client, msg string) {
-	text := msg
-	token := client.Publish("sensor", 0, false, text)
+func Publish(client mqtt.Client, msg []byte) {
+	token := client.Publish("sensor", 0, false, msg)
 	token.Wait()
 	fmt.Println("Message published successfully!")
 }

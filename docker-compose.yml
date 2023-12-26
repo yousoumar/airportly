@@ -7,10 +7,6 @@ services:
     ports:
       - "1985:1985"
 
-  redis:
-    image: "redis:latest"
-    ports:
-      - "6379:6379"
   mongo:
     image: mongo
     restart: always
