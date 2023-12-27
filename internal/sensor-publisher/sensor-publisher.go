@@ -2,7 +2,8 @@ package sensor_publisher
 
 import (
 	mqttClient "airport-weather/internal/mqtt-client"
-	"fmt"
+	sensor "airport-weather/internal/sensor-data-type"
+	"encoding/json"
 	"math/rand"
 	"time"
 
@@ -18,8 +19,9 @@ func PublishSensorValue(client mqtt.Client, sensorId int, sensorValueName string
 	for {
 		timestamp := time.Now()
 		value += rand.Float64()*2*noiseAmplitude - noiseAmplitude
-
-		mqttClient.Publish(client, "{\"sensorId\":\""+fmt.Sprintf("%d", sensorId)+"\",\"airportId\":\""+airportIata+"\",\"sensorType\":\""+sensorValueName+"\",\"value\":\""+fmt.Sprintf("%.2f", value)+"\",\"timestamp\":\""+timestamp.String()+"\"}")
+		sensorDataType := sensor.SensorDataType{SensorId: sensorId, AirportId: airportIata, SensorType: sensorValueName, Value: value, Timestamp: timestamp}
+		payload, _ := json.Marshal(sensorDataType)
+		mqttClient.Publish(client, payload)
 		time.Sleep(time.Duration(interval) * time.Second)
 	}
 }
