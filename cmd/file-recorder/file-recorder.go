@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"os"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+
+	mqttClient "airport-weather/internal/mqtt-client"
 )
-import mqttClient "airport-weather/internal/mqtt-client"
 
 func main() {
 	c := make(chan os.Signal, 1)
 	client := mqttClient.GetMqttClient("file-recorder")
-	mqttClient.Subscribe(client, subHandler)
+	mqttClient.Subscribe("sensor", client, subHandler)
 	<-c
 }
 

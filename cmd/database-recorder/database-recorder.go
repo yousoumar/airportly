@@ -20,7 +20,7 @@ var dbClient *mongo.Client
 func main() {
 	dbClient = connectDb()
 	c := make(chan os.Signal, 1)
-	mqttClient.Subscribe(mqttClient.GetMqttClient("database-recorder"), subHandler)
+	mqttClient.Subscribe("sensor", mqttClient.GetMqttClient("database-recorder"), subHandler)
 	<-c
 }
 
