@@ -31,7 +31,7 @@ var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) 
 }
 
 func storeData(payload []byte) {
-	var sensorDataType sensor.SensorDataType
+	var sensorDataType sensor.DataType
 	err := json.Unmarshal(payload, &sensorDataType)
 
 	doc := bson.M{
