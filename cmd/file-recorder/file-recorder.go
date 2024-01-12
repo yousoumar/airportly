@@ -50,7 +50,7 @@ var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	record := []string{formattedTime, data.SensorType, fmt.Sprintf("%s", data.Value)}
+	record := []string{formattedTime, data.SensorType, fmt.Sprintf("%f", data.Value)}
 	if err := writer.Write(record); err != nil {
 		log.Fatalln("Error writing to CSV:", err)
 	}
