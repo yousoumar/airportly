@@ -2,7 +2,7 @@ package sensor_data_type
 
 import "time"
 
-type SensorDataType struct {
+type DataType struct {
 	SensorId   int `json:"sensorId"`
 	AirportId  string `json:"airportId"`
 	SensorType string `json:"sensorType"`
