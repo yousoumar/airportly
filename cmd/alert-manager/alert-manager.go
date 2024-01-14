@@ -35,7 +35,7 @@ var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) 
 		if messageData.Value >= 1007 {
 			alert(client, messageData)
 		}
-	case "wind":
+	case "wind-speed":
 		if messageData.Value >= 35 {
 			alert(client, messageData)
 		}
