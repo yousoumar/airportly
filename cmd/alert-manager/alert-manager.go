@@ -20,16 +20,12 @@ func main() {
 	<-c
 }
 
-// TODO: We want this function to send alerts to the MQTT server if some thread are reacheds
 var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	// fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
-	// dechifrer le message
 	var messageData dataType.DataType
 	err := json.Unmarshal(msg.Payload(), &messageData)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// vérifier
 	switch messageData.SensorType {
 	case "temperature":
 		if messageData.Value <= 16 {
@@ -49,12 +45,10 @@ var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) 
 
 }
 
-// Send message on the topic
 func alert(client mqtt.Client, msg dataType.DataType) {
 	msgPayload, err := json.Marshal(msg)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Print(msgPayload)
 	mqttClient.Publish("alert", client, msgPayload)
 }

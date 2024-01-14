@@ -1,16 +1,16 @@
 package main
 
 import (
+	mqttClient "airport-weather/internal/mqtt-client"
 	sensor "airport-weather/internal/sensor-data-type"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
 	"strings"
 	"time"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
-	mqttClient "airport-weather/internal/mqtt-client"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 }
 
 var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	var data sensor.SensorDataType
+	var data sensor.DataType
 	err := json.Unmarshal(msg.Payload(), &data)
 	if err != nil {
 		log.Fatalln("Error parsing JSON data:", err)
