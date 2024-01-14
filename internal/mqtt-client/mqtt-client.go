@@ -32,14 +32,13 @@ func GetMqttClient(clientId string) mqtt.Client {
 	return client
 }
 
-func Publish(client mqtt.Client, msg []byte) {
-	token := client.Publish("sensor", 0, false, msg)
+func Publish(topic string, client mqtt.Client, msg []byte) {
+	token := client.Publish(topic, 0, false, msg)
 	token.Wait()
 	fmt.Println("Message published successfully!")
 }
 
-func Subscribe(client mqtt.Client, subHandler func(client mqtt.Client, msg mqtt.Message)) {
-	topic := "sensor"
+func Subscribe(topic string, client mqtt.Client, subHandler func(client mqtt.Client, msg mqtt.Message)) {
 	token := client.Subscribe(topic, 1, subHandler)
 	token.Wait()
 	fmt.Printf("Subscribed to topic: %s\n", topic)

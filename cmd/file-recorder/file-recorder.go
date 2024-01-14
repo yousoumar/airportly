@@ -1,6 +1,7 @@
 package main
 
 import (
+	mqttClient "airport-weather/internal/mqtt-client"
 	sensor "airport-weather/internal/sensor-data-type"
 	"encoding/csv"
 	"encoding/json"
@@ -11,17 +12,16 @@ import (
 	"strings"
 	"time"
 )
-import mqttClient "airport-weather/internal/mqtt-client"
 
 func main() {
 	c := make(chan os.Signal, 1)
 	client := mqttClient.GetMqttClient("file-recorder")
-	mqttClient.Subscribe(client, subHandler)
+	mqttClient.Subscribe("sensor", client, subHandler)
 	<-c
 }
 
 var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	var data sensor.SensorDataType
+	var data sensor.DataType
 	err := json.Unmarshal(msg.Payload(), &data)
 	if err != nil {
 		log.Fatalln("Error parsing JSON data:", err)
