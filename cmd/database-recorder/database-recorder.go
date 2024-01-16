@@ -35,7 +35,6 @@ func storeData(payload []byte) {
 	err := json.Unmarshal(payload, &sensorDataType)
 
 	doc := bson.M{
-		"sensorId":   sensorDataType.SensorId,
 		"airportId":  sensorDataType.AirportId,
 		"sensorType": sensorDataType.SensorType,
 		"value":      sensorDataType.Value,
