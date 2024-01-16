@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if len(os.Args) <= 1 || len(os.Args[1]) != 3 {
-		fmt.Println("Veuillez fournir un nom d'aéroport valide.")
+		fmt.Println("Please provide a valid airport name.")
 		return
 	}
 	var airportCode string = os.Args[1]
