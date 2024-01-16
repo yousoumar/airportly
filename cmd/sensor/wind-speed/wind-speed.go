@@ -13,8 +13,9 @@ func main() {
 		return
 	}
 	var airportCode string = os.Args[1]
-	client := mqttClient.GetMqttClient("pressure-sensor")
+	topic := fmt.Sprintf("airport/%s/sensor/wind-speed", airportCode)
+	client := mqttClient.GetMqttClient("wind-speed-sensor")
 	c := make(chan os.Signal, 1)
-	go sensorPublisher.PublishSensorValue(client, 3, "wind-speed", airportCode, 15)
+	go sensorPublisher.PublishSensorValue(topic, client, 3, "wind-speed", airportCode, 15)
 	<-c
 }

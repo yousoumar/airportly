@@ -12,9 +12,10 @@ func main() {
 		fmt.Println("Please provide a valid airport IATA code.")
 		return
 	}
-	var airportCode string = os.Args[1]
+	airportCode := os.Args[1]
+	topic := fmt.Sprintf("airport/%s/sensor/pressure", airportCode)
 	client := mqttClient.GetMqttClient("pressure-sensor")
 	c := make(chan os.Signal, 1)
-	go sensorPublisher.PublishSensorValue(client, 2, "pressure", airportCode, 1000)
+	go sensorPublisher.PublishSensorValue(topic, client, 2, "pressure", airportCode, 1000)
 	<-c
 }
