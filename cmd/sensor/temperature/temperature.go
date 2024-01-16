@@ -3,13 +3,18 @@ package main
 import (
 	mqttClient "airport-weather/internal/mqtt-client"
 	sensorPublisher "airport-weather/internal/sensor-publisher"
+	"fmt"
 	"os"
 )
 
 func main() {
-	client := mqttClient.GetMqttClient("temperature-sensor")
+	if len(os.Args) <= 1 || len(os.Args[1]) != 3 {
+		fmt.Println("Please provide a valid airport IATA code.")
+		return
+	}
+	var airportCode string = os.Args[1]
+	client := mqttClient.GetMqttClient("pressure-sensor")
 	c := make(chan os.Signal, 1)
-	go sensorPublisher.PublishSensorValue(client, 1, "temperature", "CDG", 20)
-	go sensorPublisher.PublishSensorValue(client, 1, "temperature", "RAK", 25)
+	go sensorPublisher.PublishSensorValue(client, 1, "temperature", airportCode, 20)
 	<-c
 }
