@@ -6,18 +6,17 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
 	"strings"
 	"time"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
-	mqttClient "airport-weather/internal/mqtt-client"
 )
 
 func main() {
 	c := make(chan os.Signal, 1)
 	client := mqttClient.GetMqttClient("file-recorder")
-	mqttClient.Subscribe("sensor", client, subHandler)
+	mqttClient.Subscribe("airport/+/sensor/#", client, subHandler)
 	<-c
 }
 
