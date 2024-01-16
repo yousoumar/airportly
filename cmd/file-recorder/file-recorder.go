@@ -17,7 +17,7 @@ import (
 func main() {
 	c := make(chan os.Signal, 1)
 	client := mqttClient.GetMqttClient("file-recorder")
-	mqttClient.Subscribe("sensor", client, subHandler)
+	mqttClient.Subscribe("airport/+/sensor/#", client, subHandler)
 	<-c
 }
 

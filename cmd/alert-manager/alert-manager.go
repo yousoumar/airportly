@@ -16,7 +16,7 @@ import (
 func main() {
 	c := make(chan os.Signal, 1)
 	client := mqttClient.GetMqttClient("alert-manager")
-	mqttClient.Subscribe("sensor", client, subHandler)
+	mqttClient.Subscribe("airport/+/sensor/#", client, subHandler)
 	<-c
 }
 
@@ -50,5 +50,6 @@ func alert(client mqtt.Client, msg dataType.DataType) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	mqttClient.Publish("alert", client, msgPayload)
+	topic := fmt.Sprintf("airport/%s/alert/%s", msg.AirportId, msg.SensorType)
+	mqttClient.Publish(topic, client, msgPayload)
 }
