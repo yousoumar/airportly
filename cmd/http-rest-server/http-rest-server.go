@@ -104,3 +104,82 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "encode for result", http.StatusBadRequest)
 	}
 }
+
+func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	dateParam := r.URL.Query().Get("date")
+
+	if dateParam == "" {
+		http.Error(w, "Date should be provided as a query parameter", http.StatusBadRequest)
+		return
+	}
+
+	decodedDate, decodedDateError := url.QueryUnescape(dateParam)
+	if decodedDateError != nil {
+		http.Error(w, "Badly encoded date", http.StatusBadRequest)
+		return
+	}
+
+	parsedDate, parsedDateErr := time.Parse("2006-01-02", decodedDate)
+	if parsedDateErr != nil {
+		http.Error(w, "Invalid date format (It should be in YYYY-MM-DD format)", http.StatusBadRequest)
+		return
+	}
+
+	startTime := parsedDate
+	endTime := parsedDate.Add(24 * time.Hour).Add(-time.Second) // End of the day
+
+	collection := dbClient.Database("airports").Collection("weather")
+
+	var data []sensor.DataType
+	filter := bson.M{
+		"sensorType": params["metric"],
+		"airportId":  strings.ToUpper(params["airportIATA"]),
+		"timestamp": bson.M{
+			"$gte": primitive.NewDateTimeFromTime(startTime),
+			"$lte": primitive.NewDateTimeFromTime(endTime),
+		},
+	}
+
+	cursor, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			http.Error(w, "Error while closing DB connection", http.StatusBadRequest)
+		}
+	}(cursor, context.Background())
+
+	var sum float64
+	var count int
+
+	for cursor.Next(context.Background()) {
+		var sensorData sensor.DataType
+		err := cursor.Decode(&sensorData)
+		if err != nil {
+			log.Println(err)
+		}
+		sum += sensorData.Value
+		count++
+	}
+
+	if count > 0 {
+		average := sum / float64(count)
+		result := map[string]interface{}{
+			"average": average,
+			"unit":    "pressure", 
+		}
+		err = json.NewEncoder(w).Encode(result)
+		if err != nil {
+			http.Error(w, "Error encoding result", http.StatusBadRequest)
+		}
+	} else {
+		err = json.NewEncoder(w).Encode(map[string]string{"message": "No data for the specified date and type"})
+		if err != nil {
+			http.Error(w, "Error encoding result", http.StatusBadRequest)
+		}
+	}
+}
