@@ -183,3 +183,93 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	dateParam := r.URL.Query().Get("date")
+
+	if dateParam == "" {
+		http.Error(w, "Date should be provided as a query parameter", http.StatusBadRequest)
+		return
+	}
+
+	decodedDate, decodedDateError := url.QueryUnescape(dateParam)
+	if decodedDateError != nil {
+		http.Error(w, "Badly encoded date", http.StatusBadRequest)
+		return
+	}
+
+	parsedDate, parsedDateErr := time.Parse("2006-01-02", decodedDate)
+	if parsedDateErr != nil {
+		http.Error(w, "Invalid date format (It should be in YYYY-MM-DD format)", http.StatusBadRequest)
+		return
+	}
+
+	startTime := parsedDate
+	endTime := parsedDate.Add(24 * time.Hour).Add(-time.Second) // End of the day
+
+	collection := dbClient.Database("airports").Collection("weather")
+
+	var data []sensor.DataType
+	filter := bson.M{
+		"airportId": strings.ToUpper(params["airportIATA"]),
+		"timestamp": bson.M{
+			"$gte": primitive.NewDateTimeFromTime(startTime),
+			"$lte": primitive.NewDateTimeFromTime(endTime),
+		},
+	}
+
+	cursor, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			http.Error(w, "Error while closing DB connection", http.StatusBadRequest)
+		}
+	}(cursor, context.Background())
+
+	var sum1, sum2, sum3 float64
+	var count1, count2, count3 int
+
+	for cursor.Next(context.Background()) {
+		var sensorData sensor.DataType
+		err := cursor.Decode(&sensorData)
+		if err != nil {
+			log.Println(err)
+		}
+
+		switch sensorData.SensorType {
+		case "pressure":
+			sum1 += sensorData.Value
+			count1++
+		case "temperature":
+			sum2 += sensorData.Value
+			count2++
+		case "wind-speed":
+			sum3 += sensorData.Value
+			count3++
+		}
+
+	}
+
+	averages := make(map[string]float64)
+
+	if count1 > 0 {
+		averages["pressure"] = sum1 / float64(count1)
+	}
+
+	if count2 > 0 {
+		averages["temperature"] = sum2 / float64(count2)
+	}
+
+	if count3 > 0 {
+		averages["wind-speed"] = sum3 / float64(count3)
+	}
+
+	err = json.NewEncoder(w).Encode(averages)
+	if err != nil {
+		http.Error(w, "Error encoding result", http.StatusBadRequest)
+	}
+}
