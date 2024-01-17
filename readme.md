@@ -11,13 +11,13 @@ Then, for example to test our Alert Manager, do the followings:
 Open a new terminal in the project root folder and run:
 
 ```sh
-cd ./cmd/alert-manager && go run alert-manager.go
+cd ./cmd/sensor && go run sensor.go AirportCode SensorType BaseValue
 ```
-
-Open another terminal in the project root folder and run:
-
+Example for a temperature sensor at CDG (Charles de Gaulle Airport):
 ```sh
-cd ./cmd/sensor/pressure && go run pressure.go
+cd ./cmd/sensor && go run sensor.go CDG temperature 23
 ```
+
+
 
 Go back to the first terminal, see the message.
