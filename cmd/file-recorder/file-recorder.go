@@ -6,11 +6,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
 	"strings"
 	"time"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	mqttClient "airport-weather/internal/mqtt-client"
 )
 
 func main() {

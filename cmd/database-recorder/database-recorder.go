@@ -37,7 +37,6 @@ func storeData(payload []byte) {
 		log.Fatal(err)
 	}
 	doc := bson.M{
-		"sensorId":   sensorDataType.SensorId,
 		"airportId":  sensorDataType.AirportId,
 		"sensorType": sensorDataType.SensorType,
 		"value":      sensorDataType.Value,
