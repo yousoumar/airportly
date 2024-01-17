@@ -31,7 +31,5 @@ func main() {
 	topic := fmt.Sprintf("airport/%s/sensor/%s", airportCode, sensorValueName)
 	clientName := fmt.Sprintf("sensor-%s-%s", airportCode, sensorValueName)
 	client := mqttClient.GetMqttClient(clientName)
-	
 	sensorPublisher.PublishSensorValue(topic, client, sensorValueName, airportCode, baseValue)
-	<-c
 }
