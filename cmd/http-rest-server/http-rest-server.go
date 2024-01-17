@@ -22,7 +22,7 @@ var dbClient *mongo.Client
 func main() {
 	dbClient = db.GetDbClient()
 	r := mux.NewRouter()
-	r.HandleFunc("/{airportId}/{metric}", getDataBetweenTwoTimes).Methods("GET")
+	r.HandleFunc("/{airportIATA}/{metric}", getDataBetweenTwoTimes).Methods("GET")
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatal("Error spinning up server", err)
@@ -39,18 +39,29 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	decodedStartTime, _ := url.QueryUnescape(startTimeParam)
-	decodedEndTime, err := url.QueryUnescape(endTimeParam)
-	startTime, err := time.Parse(time.RFC3339, decodedStartTime)
-
-	if err != nil {
-		http.Error(w, "Invalid startTime format", http.StatusBadRequest)
+	decodedStartTime, decodedStartTimeError := url.QueryUnescape(startTimeParam)
+	if decodedStartTimeError != nil {
+		http.Error(w, "Badly encoded startTime", http.StatusBadRequest)
 		return
 	}
 
-	endTime, err := time.Parse(time.RFC3339, decodedEndTime)
-	if err != nil {
-		http.Error(w, "Invalid endTime format", http.StatusBadRequest)
+	decodedEndTime, decodedEndTimeErr := url.QueryUnescape(endTimeParam)
+
+	if decodedEndTimeErr != nil {
+		http.Error(w, "Badly encoded endTime", http.StatusBadRequest)
+		return
+	}
+
+	parsedStartTime, parsedStartTimeErr := time.Parse(time.RFC3339, decodedStartTime)
+
+	if parsedStartTimeErr != nil {
+		http.Error(w, "Invalid startTime format (It should be an ISO date format)", http.StatusBadRequest)
+		return
+	}
+
+	parsedEndTime, parsedEndTimeErr := time.Parse(time.RFC3339, decodedEndTime)
+	if parsedEndTimeErr != nil {
+		http.Error(w, "Invalid endTime format (It should be an ISO date format)", http.StatusBadRequest)
 		return
 	}
 
@@ -59,10 +70,10 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 	var data []sensor.DataType
 	filter := bson.M{
 		"sensorType": params["metric"],
-		"airportId":  strings.ToUpper(params["airportId"]),
+		"airportId":  strings.ToUpper(params["airportIATA"]),
 		"timestamp": bson.M{
-			"$gte": primitive.NewDateTimeFromTime(startTime),
-			"$lte": primitive.NewDateTimeFromTime(endTime),
+			"$gte": primitive.NewDateTimeFromTime(parsedStartTime),
+			"$lte": primitive.NewDateTimeFromTime(parsedEndTime),
 		},
 	}
 
