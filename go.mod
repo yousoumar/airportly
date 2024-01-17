@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/gorilla/mux v1.8.1
+	github.com/rs/cors v1.10.1
 	go.mongodb.org/mongo-driver v1.13.1
 )
 

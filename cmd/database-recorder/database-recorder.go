@@ -6,12 +6,13 @@ import (
 	mqttClient "airport-weather/internal/mqtt-client"
 	"context"
 	"encoding/json"
+	"log"
+	"os"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"os"
 )
 
 var dbClient *mongo.Client
@@ -20,6 +21,7 @@ func main() {
 	dbClient = db.GetDbClient()
 	c := make(chan os.Signal, 1)
 	mqttClient.Subscribe("airport/+/sensor/#", mqttClient.GetMqttClient("database-recorder"), subHandler)
+	defer db.CloseDbClient(dbClient)
 	<-c
 }
 
