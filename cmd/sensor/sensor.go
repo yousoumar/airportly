@@ -32,6 +32,6 @@ func main() {
 	clientName := fmt.Sprintf("sensor-%s-%s", airportCode, sensorValueName)
 	client := mqttClient.GetMqttClient(clientName)
 	c := make(chan os.Signal, 1)
-	go sensorPublisher.PublishSensorValue(topic, client, sensorValueName, airportCode, baseValue)
+	sensorPublisher.PublishSensorValue(topic, client, sensorValueName, airportCode, baseValue)
 	<-c
 }
