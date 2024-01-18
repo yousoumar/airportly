@@ -1,11 +1,15 @@
 package main
 
 import (
+	dataType "airport-weather/internal/data-type"
 	mqttClient "airport-weather/internal/mqtt-client"
-	sensorPublisher "airport-weather/internal/sensor-publisher"
+	"encoding/json"
 	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -31,5 +35,22 @@ func main() {
 	topic := fmt.Sprintf("airport/%s/sensor/%s", airportCode, sensorValueName)
 	clientName := fmt.Sprintf("sensor-%s-%s", airportCode, sensorValueName)
 	client := mqttClient.GetMqttClient(clientName)
-	sensorPublisher.PublishSensorValue(topic, client, sensorValueName, airportCode, baseValue)
+	sensorId := time.Now().Unix()
+	PublishSensorValue(topic, client, sensorId, sensorValueName, airportCode, baseValue)
+}
+
+func PublishSensorValue(topic string, client mqtt.Client, sensorId int64, sensorValueName string, airportIata string, baseValue float64) {
+	noiseAmplitude := 0.5
+
+	interval := 5
+	value := baseValue
+
+	for {
+		timestamp := time.Now()
+		value += rand.Float64()*2*noiseAmplitude - noiseAmplitude
+		sensorDataType := dataType.DataType{SensorId: sensorId, AirportId: airportIata, SensorType: sensorValueName, Value: value, Timestamp: timestamp}
+		payload, _ := json.Marshal(sensorDataType)
+		mqttClient.Publish(topic, client, payload)
+		time.Sleep(time.Duration(interval) * time.Second)
+	}
 }

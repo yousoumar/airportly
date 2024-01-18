@@ -1,9 +1,9 @@
 package main
 
 import (
+	dataType "airport-weather/internal/data-type"
 	db "airport-weather/internal/database"
 	mqttClient "airport-weather/internal/mqtt-client"
-	sensor "airport-weather/internal/sensor-data-type"
 	"context"
 	"encoding/json"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -30,13 +30,14 @@ var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) 
 }
 
 func storeData(payload []byte) {
-	var sensorDataType sensor.DataType
+	var sensorDataType dataType.DataType
 	err := json.Unmarshal(payload, &sensorDataType)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	doc := bson.M{
+		"sensorId":   sensorDataType.SensorId,
 		"airportId":  sensorDataType.AirportId,
 		"sensorType": sensorDataType.SensorType,
 		"value":      sensorDataType.Value,

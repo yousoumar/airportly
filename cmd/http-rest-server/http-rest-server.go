@@ -1,8 +1,8 @@
 package main
 
 import (
+	dataType "airport-weather/internal/data-type"
 	db "airport-weather/internal/database"
-	sensor "airport-weather/internal/sensor-data-type"
 	"context"
 	"encoding/json"
 	"log"
@@ -67,7 +67,7 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 
 	collection := dbClient.Database("airports").Collection("weather")
 
-	var data []sensor.DataType
+	var data []dataType.DataType
 	filter := bson.M{
 		"sensorType": params["metric"],
 		"airportId":  strings.ToUpper(params["airportIATA"]),
@@ -91,7 +91,7 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 	}(cursor, context.Background())
 
 	for cursor.Next(context.Background()) {
-		var sensorData sensor.DataType
+		var sensorData dataType.DataType
 		err := cursor.Decode(&sensorData)
 		if err != nil {
 			log.Println(err)
