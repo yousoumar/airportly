@@ -22,7 +22,9 @@ var dbClient *mongo.Client
 func main() {
 	dbClient = db.GetDbClient()
 	r := mux.NewRouter()
-	r.HandleFunc("/{airportIATA}/{metric}", getDataBetweenTwoTimes).Methods("GET")
+	r.HandleFunc("/api/v1/{airportIATA}/{metric}", getDataBetweenTwoTimes).Methods("GET")
+	r.HandleFunc("/api/v1/{airportIATA}/{metric}/average", getAverageForSingleTypeInDay).Methods("GET")
+	r.HandleFunc("/api/v1/{airportIATA}/average/alltype", getAverageForAllTypesInDay).Methods("GET")
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatal("Error spinning up server", err)
@@ -120,7 +122,7 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsedDate, parsedDateErr := time.Parse("2006-01-02", decodedDate)
+	parsedDate, parsedDateErr := time.Parse(time.RFC3339, decodedDate)
 	if parsedDateErr != nil {
 		http.Error(w, "Invalid date format (It should be in YYYY-MM-DD format)", http.StatusBadRequest)
 		return
@@ -131,7 +133,6 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 
 	collection := dbClient.Database("airports").Collection("weather")
 
-	var data []sensor.DataType
 	filter := bson.M{
 		"sensorType": params["metric"],
 		"airportId":  strings.ToUpper(params["airportIATA"]),
@@ -157,7 +158,7 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 	var count int
 
 	for cursor.Next(context.Background()) {
-		var sensorData sensor.DataType
+		var sensorData dataType.DataType
 		err := cursor.Decode(&sensorData)
 		if err != nil {
 			log.Println(err)
@@ -170,7 +171,7 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 		average := sum / float64(count)
 		result := map[string]interface{}{
 			"average": average,
-			"unit":    "pressure", 
+			"unit":    params["metric"],
 		}
 		err = json.NewEncoder(w).Encode(result)
 		if err != nil {
@@ -183,6 +184,7 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
 func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	dateParam := r.URL.Query().Get("date")
@@ -198,7 +200,7 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsedDate, parsedDateErr := time.Parse("2006-01-02", decodedDate)
+	parsedDate, parsedDateErr := time.Parse(time.RFC3339, decodedDate)
 	if parsedDateErr != nil {
 		http.Error(w, "Invalid date format (It should be in YYYY-MM-DD format)", http.StatusBadRequest)
 		return
@@ -209,7 +211,6 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 
 	collection := dbClient.Database("airports").Collection("weather")
 
-	var data []sensor.DataType
 	filter := bson.M{
 		"airportId": strings.ToUpper(params["airportIATA"]),
 		"timestamp": bson.M{
@@ -234,7 +235,7 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	var count1, count2, count3 int
 
 	for cursor.Next(context.Background()) {
-		var sensorData sensor.DataType
+		var sensorData dataType.DataType
 		err := cursor.Decode(&sensorData)
 		if err != nil {
 			log.Println(err)
@@ -251,9 +252,7 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 			sum3 += sensorData.Value
 			count3++
 		}
-
 	}
-
 	averages := make(map[string]float64)
 
 	if count1 > 0 {
