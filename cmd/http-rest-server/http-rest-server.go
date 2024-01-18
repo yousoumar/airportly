@@ -5,6 +5,7 @@ import (
 	db "airport-weather/internal/database"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -88,7 +89,7 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 		err := cursor.Close(ctx)
 		if err != nil {
 
-			http.Error(w, "Error while closing DB connection", http.StatusBadRequest)
+			log.Println(w, "Error while closing DB connection", http.StatusBadRequest)
 		}
 	}(cursor, context.Background())
 
@@ -124,12 +125,12 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 
 	parsedDate, parsedDateErr := time.Parse(time.RFC3339, decodedDate)
 	if parsedDateErr != nil {
-		http.Error(w, "Invalid date format (It should be in YYYY-MM-DD format)", http.StatusBadRequest)
+		http.Error(w, "Invalid date format (It should be in ISO format)", http.StatusBadRequest)
 		return
 	}
 
-	startTime := parsedDate
-	endTime := parsedDate.Add(24 * time.Hour).Add(-time.Second) // End of the day
+	startTime := time.Date(parsedDate.Year(), parsedDate.Month(), parsedDate.Day(), 0, 0, 0, 0, parsedDate.Location())
+	endTime := startTime.Add(24 * time.Hour).Add(-time.Second)
 
 	collection := dbClient.Database("airports").Collection("weather")
 
@@ -150,7 +151,7 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		err := cursor.Close(ctx)
 		if err != nil {
-			http.Error(w, "Error while closing DB connection", http.StatusBadRequest)
+			log.Println(w, "Error while closing DB connection", http.StatusBadRequest)
 		}
 	}(cursor, context.Background())
 
@@ -202,12 +203,14 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 
 	parsedDate, parsedDateErr := time.Parse(time.RFC3339, decodedDate)
 	if parsedDateErr != nil {
-		http.Error(w, "Invalid date format (It should be in YYYY-MM-DD format)", http.StatusBadRequest)
+		http.Error(w, "Invalid date format (It should be in ISO format)", http.StatusBadRequest)
 		return
 	}
 
-	startTime := parsedDate
-	endTime := parsedDate.Add(24 * time.Hour).Add(-time.Second) // End of the day
+	startTime := time.Date(parsedDate.Year(), parsedDate.Month(), parsedDate.Day(), 0, 0, 0, 0, parsedDate.Location())
+	endTime := startTime.Add(24 * time.Hour).Add(-time.Second)
+	fmt.Println(startTime)
+	fmt.Println(endTime)
 
 	collection := dbClient.Database("airports").Collection("weather")
 
@@ -227,7 +230,7 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
 		err := cursor.Close(ctx)
 		if err != nil {
-			http.Error(w, "Error while closing DB connection", http.StatusBadRequest)
+			log.Println(w, "Error while closing DB connection", http.StatusBadRequest)
 		}
 	}(cursor, context.Background())
 
