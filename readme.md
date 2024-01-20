@@ -56,8 +56,7 @@ This will expose the stored data through a REST API running on `http://localhost
 cd ./cmd/alert-manager && go run alert-manager.go
 ```
 
-This will create send alerts to some clients who are subscribed on the topic `airport/codeIata/alert/#` for all metrics, or for a specific metric like for example the temperature `airport/codeIata/alert/temperature`
-
+This will send alerts to clients who are subscribed on the topic `airport/codeIata/alert/#` for all metrics related to an airport, or for a specific metric like the temperature with `airport/codeIata/alert/temperature`.
 We also built a client app that consumes the REST API. If you want to test it out. Open another terminal in the project root folder and run (you need `node` and `npm` installed on your computer):
 
 ```sh
