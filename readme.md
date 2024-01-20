@@ -4,60 +4,77 @@ As part of our Distributed Systems course at IMT Atlantique Engineering School, 
 
 ## Running the project locally
 
-You need to have `Docker` and `Docker Compose` running on your machine (that is to spin up a `MongoDB` database, and a `Mosquitto` server for `MQTT`). Also, you need to have Golang installed on your system.
+## Requirements
 
-1. Open a terminal in the project root folder and run:
+You need to have `Docker` and `Docker Compose` running on your machine. Also, you need to have `Golang` installed on your system.
+
+## Setting up the project
+
+### Spin up MongoDB and Mosquitto
+
+We use MongoDB as database, and Mosquitto as MQQT server. We run and connect them to other parts of the project using `Docker Compose`.
+
+Open a terminal in the project root folder and run:
 
 ```sh
 docker-compose up --build
 ```
 
-2. Open a new terminal in the project root folder and run:
+### Run some sensors to send some data to Mosquitto
+
+We simulate sensors with the `sensor.go` file. To run it, open a new terminal in the project root folder and run:
 
 ```sh
 cd ./cmd/sensor && go run sensor.go CDG temperature 23
 ```
 
-The above command is like saying: I need a temperature sensor on Aéroport de Paris-Charles de Gaulle (CDG being the IATA code of it). `23` is the base temperature (we use it to generate random data based on it).
+The above command is like saying: I need a temperature sensor on Paris-Charles de Gaulle Airport (CDG being the [IATA code](https://en.wikipedia.org/wiki/IATA_airport_code) of the airport). `23` is the base metric (here temperature). We use it to generate random data based on it.
 
-3. Open another terminal in the project root folder and run:
+To have a sensor on the same airport measuring pressure, open another terminal in the project root folder and run:
 
 ```sh
 cd ./cmd/sensor && go run sensor.go CDG pressure 106
 ```
 
-4. Open another terminal in the project root folder and run:
+### Let's record the data sent by the sensors into CVS files
+
+We save the data sent by the sensors in CSV files in the same folder as the corresponding script (one per day and per airport). For that, open another terminal in the project root folder and run:
 
 ```sh
 cd ./cmd/file-recorder && go run file-recorder.go
 ```
 
-This will save the data sent by the sensors in CSV files in the same folder (one per day and per airport)
+### Let's record the data sent by the sensors into MongoDB
 
-4. Open another terminal in the project root folder and run:
+For that, we use the database lunched with `Docker` above. Open another terminal in the project root folder and run:
 
 ```sh
 cd ./cmd/database-recorder && go run database-recorder.go
 ```
 
-This will save the data sent by the sensor in the MongoDB database we talked about above.
+### Let's access the data in MongoDB with a REST API
 
-5. Open another terminal in the project root folder and run:
+We expose the stored data through a REST API running on `http://localhost:8080`. Open another terminal in the project root folder and run:
 
 ```sh
-cd ./cmd/http-reset-server && go run http-reset-server.go
+cd ./cmd/http-rest-server && go run http-rest-server.go
 ```
 
-This will expose the stored data through a REST API running on `http://localhost:8080`.
+There is an OpenAPI based documentation of the API in `cmd/http-rest-server/OpenAPI.yaml`.
 
-6. Open another terminal in the project root folder and run:
+### Getting alerts when metrics reach some threshold
+
+We send alerts to clients who are subscribed on the topic `airport/codeIata/alert/#` for all metrics related to an airport, or for a specific metric like the temperature with `airport/codeIata/alert/temperature`, when some threshold are reached.
+
+To test it, open another terminal in the project root folder and run:
 
 ```sh
 cd ./cmd/alert-manager && go run alert-manager.go
 ```
 
-This will send alerts to clients who are subscribed on the topic `airport/codeIata/alert/#` for all metrics related to an airport, or for a specific metric like the temperature with `airport/codeIata/alert/temperature`.
-We also built a client app that consumes the REST API. If you want to test it out. Open another terminal in the project root folder and run (you need `node` and `npm` installed on your computer):
+### Let's visualize the data in a Graphical Interface in a browser
+
+We built a client app with `React`, `MUI` and `vite`, that consumes the REST API. To test it out, open another terminal in the project root folder and run (you need `node` and `npm` installed on your computer):
 
 ```sh
 cd ./ihm && npm i && npm run dev

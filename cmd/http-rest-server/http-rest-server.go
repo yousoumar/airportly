@@ -22,6 +22,7 @@ import (
 var dbClient *mongo.Client
 
 func main() {
+	log.Println("Starting the server...")
 	dbClient = db.GetDbClient()
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/{airportIATA}/metric/{metric}", getDataBetweenTwoTimes).Methods("GET")
@@ -33,11 +34,13 @@ func main() {
 	r.HandleFunc("/api/v1/{airportIATA}/available-metrics", getAvailableMetrics).Methods("GET")
 
 	handler := cors.Default().Handler(r)
+	log.Println("Server will be listeneing at", "http://localhost:8080/")
 	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		log.Fatal("Error spinning up server", err)
 	}
 	defer db.CloseDbClient(dbClient)
+
 }
 
 func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
