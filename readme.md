@@ -29,7 +29,7 @@ cd ./cmd/sensor && go run sensor.go CDG pressure 106
 4. Open another terminal in the project root folder and run:
 
 ```sh
-cd ./cmd/file-recorder && go run filee-recorder.go
+cd ./cmd/file-recorder && go run file-recorder.go
 ```
 
 This will save the data sent by the sensors in CSV files in the same folder (one per day and per airport)
@@ -50,6 +50,13 @@ cd ./cmd/http-reset-server && go run http-reset-server.go
 
 This will expose the stored data through a REST API running on `http://localhost:8080`.
 
+6. Open another terminal in the project root folder and run:
+
+```sh
+cd ./cmd/alert-manager && go run alert-manager.go
+```
+
+This will send alerts to clients who are subscribed on the topic `airport/codeIata/alert/#` for all metrics related to an airport, or for a specific metric like the temperature with `airport/codeIata/alert/temperature`.
 We also built a client app that consumes the REST API. If you want to test it out. Open another terminal in the project root folder and run (you need `node` and `npm` installed on your computer):
 
 ```sh
