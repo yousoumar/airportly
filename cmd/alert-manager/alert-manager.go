@@ -10,7 +10,7 @@ import (
 
 	mqttClient "airport-weather/internal/mqtt-client"
 
-	dataType "airport-weather/internal/sensor-data-type"
+	dataType "airport-weather/internal/data-type"
 )
 
 func main() {

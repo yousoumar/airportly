@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
+	"log"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 )
 
 func GetDbClient() *mongo.Client {
@@ -30,4 +31,13 @@ func GetDbClient() *mongo.Client {
 	log.Println("Connected to MongoDB successfully !")
 
 	return client
+}
+
+func CloseDbClient(client *mongo.Client) {
+	if client == nil {
+		return
+	}
+	if err := client.Disconnect(context.Background()); err != nil {
+		log.Fatal(err)
+	}
 }

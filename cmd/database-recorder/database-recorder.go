@@ -1,17 +1,18 @@
 package main
 
 import (
+	dataType "airport-weather/internal/data-type"
 	db "airport-weather/internal/database"
 	mqttClient "airport-weather/internal/mqtt-client"
-	sensor "airport-weather/internal/sensor-data-type"
 	"context"
 	"encoding/json"
+	"log"
+	"os"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"os"
 )
 
 var dbClient *mongo.Client
@@ -20,6 +21,7 @@ func main() {
 	dbClient = db.GetDbClient()
 	c := make(chan os.Signal, 1)
 	mqttClient.Subscribe("airport/+/sensor/#", mqttClient.GetMqttClient("database-recorder"), subHandler)
+	defer db.CloseDbClient(dbClient)
 	<-c
 }
 
@@ -30,13 +32,14 @@ var subHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) 
 }
 
 func storeData(payload []byte) {
-	var sensorDataType sensor.DataType
+	var sensorDataType dataType.DataType
 	err := json.Unmarshal(payload, &sensorDataType)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	doc := bson.M{
+		"sensorId":   sensorDataType.SensorId,
 		"airportId":  sensorDataType.AirportId,
 		"sensorType": sensorDataType.SensorType,
 		"value":      sensorDataType.Value,
