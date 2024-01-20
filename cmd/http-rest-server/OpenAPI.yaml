@@ -53,7 +53,7 @@ paths:
           description: Bad request
   /api/v1/{airportIATA}/metric/{metric}/average:
     get:
-      summary: Get average for a single type in a day
+      summary: Get average value of a metric in a day
       parameters:
         - name: airportIATA
           in: path
@@ -88,7 +88,7 @@ paths:
           description: Bad request
   /api/v1/{airportIATA}/metrics/average:
     get:
-      summary: Get average for all types in a day
+      summary: Get average value of all metrics in a day
       parameters:
         - name: airportIATA
           in: path
@@ -118,7 +118,7 @@ paths:
           description: Bad request
   /api/v1/{airportIATA}/metric/{metric}/date-range:
     get:
-      summary: Get date interval for a specific metric
+      summary: Get date interval of a specific metric
       parameters:
         - name: airportIATA
           in: path
@@ -146,7 +146,7 @@ paths:
           description: Bad request
   /api/v1/metadata/airports:
     get:
-      summary: Get available airport IDs
+      summary: Get all available airport IDs
       responses:
         '200':
           description: Successful response
