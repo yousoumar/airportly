@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: Airport Weather API
+  description: API for retrieving weather data from airports
+  version: 1.0.0
+paths:
+  /api/v1/{airportIATA}/{metric}:
+    get:
+      summary: Get data between two times
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          description: Airport IATA code
+          schema:
+            type: string
+        - name: metric
+          in: path
+          required: true
+          description: Metric type (e.g., pressure, temperature, wind-speed)
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          required: true
+          description: Start time for data retrieval (ISO 8601 format)
+          schema:
+            type: string
+        - name: endTime
+          in: query
+          required: true
+          description: End time for data retrieval (ISO 8601 format)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: [{"timestamp": "2024-01-20T12:00:00Z", "value": 25.5}, ...]
+
+  /api/v1/{airportIATA}/{metric}/average:
+    get:
+      summary: Get average for a single type in a day
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          description: Airport IATA code
+          schema:
+            type: string
+        - name: metric
+          in: path
+          required: true
+          description: Metric type (e.g., pressure, temperature, wind-speed)
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          description: Date for average calculation (ISO 8601 format)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: {"average": 20.5, "unit": "temperature"}
+
+  /api/v1/{airportIATA}/average/alltype:
+    get:
+      summary: Get average for all types in a day
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          description: Airport IATA code
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          description: Date for average calculation (ISO 8601 format)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: {"pressure": 1012.5, "temperature": 20.5, "wind-speed": 10.2}

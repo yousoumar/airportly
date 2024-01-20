@@ -5,7 +5,6 @@ import (
 	db "airport-weather/internal/database"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -209,8 +208,6 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 
 	startTime := time.Date(parsedDate.Year(), parsedDate.Month(), parsedDate.Day(), 0, 0, 0, 0, parsedDate.Location())
 	endTime := startTime.Add(24 * time.Hour).Add(-time.Second)
-	fmt.Println(startTime)
-	fmt.Println(endTime)
 
 	collection := dbClient.Database("airports").Collection("weather")
 
