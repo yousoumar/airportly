@@ -40,6 +40,39 @@ func main() {
 	defer db.CloseDbClient(dbClient)
 }
 
+// swagger:route GET /api/v1/{airportIATA}/metric/{metric} weather getDataBetweenTwoTimes
+// ---
+// summary: Retrieve weather data between two specified times.
+// description: Uses the startTime and endTime query parameters to define the time interval.
+// parameters:
+// - name: airportIATA
+//   in: path
+//   description: IATA code of the airport.
+//   required: true
+//   type: string
+// - name: metric
+//   in: path
+//   description: Sensor type.
+//   required: true
+//   type: string
+// - name: startTime
+//   in: query
+//   description: Start time of the interval.
+//   required: true
+//   type: string
+// - name: endTime
+//   in: query
+//   description: End time of the interval.
+//   required: true
+//   type: string
+// responses:
+//   200:
+//     description: Weather data successfully retrieved.
+//     schema:
+//       type: array
+//       items:
+//         $ref: "#/definitions/DataType"
+
 func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	startTimeParam := r.URL.Query().Get("startTime")
@@ -108,6 +141,37 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "encode for result", http.StatusBadRequest)
 	}
 }
+
+// swagger:route GET /api/v1/{airportIATA}/metric/{metric}/average weather getAverageForSingleTypeInDay
+// ---
+// summary: Calculate the average of weather data for a specific sensor type on a given day.
+// description: Uses the date query parameter to specify the date.
+// parameters:
+// - name: airportIATA
+//   in: path
+//   description: IATA code of the airport.
+//   required: true
+//   type: string
+// - name: metric
+//   in: path
+//   description: Sensor type.
+//   required: true
+//   type: string
+// - name: date
+//   in: query
+//   description: Specific date to calculate the average.
+//   required: true
+//   type: string
+// responses:
+//   200:
+//     description: Average successfully calculated.
+//     schema:
+//       type: object
+//       properties:
+//         average:
+//           type: number
+//         unit:
+//           type: string
 
 func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
@@ -180,6 +244,34 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// swagger:route GET /api/v1/{airportIATA}/metrics/average weather getAverageForAllTypesInDay
+// ---
+// summary: Calculate averages of weather data for all sensor types on a given day.
+// description: Uses the date query parameter to specify the date.
+// parameters:
+// - name: airportIATA
+//   in: path
+//   description: IATA code of the airport.
+//   required: true
+//   type: string
+// - name: date
+//   in: query
+//   description: Specific date to calculate averages.
+//   required: true
+//   type: string
+// responses:
+//   200:
+//     description: Averages successfully calculated.
+//     schema:
+//       type: object
+//       properties:
+//         pressure:
+//           type: number
+//         temperature:
+//           type: number
+//         wind-speed:
+//           type: number
 
 func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
@@ -263,6 +355,32 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// swagger:route GET /api/v1/{airportIATA}/metric/{metric}/date-range weather getDateInterval
+// ---
+// summary: Retrieve the time interval of weather data for a specific sensor type.
+// description: Returns the start and end timestamps of available data.
+// parameters:
+// - name: airportIATA
+//   in: path
+//   description: IATA code of the airport.
+//   required: true
+//   type: string
+// - name: metric
+//   in: path
+//   description: Sensor type.
+//   required: true
+//   type: string
+// responses:
+//   200:
+//     description: Time interval successfully retrieved.
+//     schema:
+//       type: object
+//       properties:
+//         startTime:
+//           type: string
+//         endTime:
+//           type: string
+
 func getDateInterval(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	collection := dbClient.Database("airports").Collection("weather")
@@ -313,6 +431,18 @@ func getDateInterval(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// swagger:route GET /api/v1/metadata/airports weather getAvailableAirportIds
+// ---
+// summary: Retrieve a list of available airport IATA codes.
+// description: Returns the IATA codes of airports with available weather data.
+// responses:
+//   200:
+//     description: List of airport IATA codes successfully retrieved.
+//     schema:
+//       type: array
+//       items:
+//         type: string
+
 func getAvailableAirportIds(w http.ResponseWriter, r *http.Request) {
 	collection := dbClient.Database("airports").Collection("weather")
 	results, err := collection.Distinct(context.Background(), "airportId", bson.M{})
@@ -326,6 +456,24 @@ func getAvailableAirportIds(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error encoding result", http.StatusBadRequest)
 	}
 }
+
+// swagger:route GET /api/v1/{airportIATA}/available-metrics weather getAvailableMetrics
+// ---
+// summary: Retrieve a list of available sensor types for a specific airport.
+// description: Returns the available sensor types for a given airport.
+// parameters:
+// - name: airportIATA
+//   in: path
+//   description: IATA code of the airport.
+//   required: true
+//   type: string
+// responses:
+//   200:
+//     description: List of sensor types successfully retrieved.
+//     schema:
+//       type: array
+//       items:
+//         type: string
 
 func getAvailableMetrics(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
