@@ -5,12 +5,13 @@ import (
 	db "airport-weather/internal/database"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/rs/cors"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,13 +24,20 @@ var dbClient *mongo.Client
 func main() {
 	dbClient = db.GetDbClient()
 	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/{airportIATA}/{metric}", getDataBetweenTwoTimes).Methods("GET")
-	r.HandleFunc("/api/v1/{airportIATA}/{metric}/average", getAverageForSingleTypeInDay).Methods("GET")
-	r.HandleFunc("/api/v1/{airportIATA}/average/alltype", getAverageForAllTypesInDay).Methods("GET")
-	err := http.ListenAndServe(":8080", r)
+	r.HandleFunc("/api/v1/{airportIATA}/metric/{metric}", getDataBetweenTwoTimes).Methods("GET")
+	r.HandleFunc("/api/v1/{airportIATA}/metric/{metric}/average", getAverageForSingleTypeInDay).Methods("GET")
+	r.HandleFunc("/api/v1/{airportIATA}/metrics/average", getAverageForAllTypesInDay).Methods("GET")
+
+	r.HandleFunc("/api/v1/{airportIATA}/metric/{metric}/date-range", getDateInterval).Methods("GET")
+	r.HandleFunc("/api/v1/metadata/airports", getAvailableAirportIds).Methods("GET")
+	r.HandleFunc("/api/v1/{airportIATA}/available-metrics", getAvailableMetrics).Methods("GET")
+
+	handler := cors.Default().Handler(r)
+	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		log.Fatal("Error spinning up server", err)
 	}
+	defer db.CloseDbClient(dbClient)
 }
 
 func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
@@ -85,13 +93,6 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer func(cursor *mongo.Cursor, ctx context.Context) {
-		err := cursor.Close(ctx)
-		if err != nil {
-
-			log.Println(w, "Error while closing DB connection", http.StatusBadRequest)
-		}
-	}(cursor, context.Background())
 
 	for cursor.Next(context.Background()) {
 		var sensorData dataType.DataType
@@ -148,12 +149,6 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer func(cursor *mongo.Cursor, ctx context.Context) {
-		err := cursor.Close(ctx)
-		if err != nil {
-			log.Println(w, "Error while closing DB connection", http.StatusBadRequest)
-		}
-	}(cursor, context.Background())
 
 	var sum float64
 	var count int
@@ -209,7 +204,7 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 
 	startTime := time.Date(parsedDate.Year(), parsedDate.Month(), parsedDate.Day(), 0, 0, 0, 0, parsedDate.Location())
 	endTime := startTime.Add(24 * time.Hour).Add(-time.Second)
-	
+
 	collection := dbClient.Database("airports").Collection("weather")
 
 	filter := bson.M{
@@ -225,12 +220,6 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer func(cursor *mongo.Cursor, ctx context.Context) {
-		err := cursor.Close(ctx)
-		if err != nil {
-			log.Println(w, "Error while closing DB connection", http.StatusBadRequest)
-		}
-	}(cursor, context.Background())
 
 	var sum1, sum2, sum3 float64
 	var count1, count2, count3 int
@@ -269,6 +258,88 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = json.NewEncoder(w).Encode(averages)
+	if err != nil {
+		http.Error(w, "Error encoding result", http.StatusBadRequest)
+	}
+}
+
+func getDateInterval(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	collection := dbClient.Database("airports").Collection("weather")
+
+	filter := bson.M{
+		"airportId": strings.ToUpper(params["airportIATA"]),
+	}
+
+	cursor, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var minTime, maxTime time.Time
+	var firstIteration = true
+
+	for cursor.Next(context.Background()) {
+		var sensorData dataType.DataType
+		err := cursor.Decode(&sensorData)
+		if err != nil {
+			log.Println(err)
+		}
+
+		if firstIteration {
+			minTime = sensorData.Timestamp
+			maxTime = sensorData.Timestamp
+			firstIteration = false
+		} else {
+			if sensorData.Timestamp.Before(minTime) {
+				minTime = sensorData.Timestamp
+			}
+
+			if sensorData.Timestamp.After(maxTime) {
+				maxTime = sensorData.Timestamp
+			}
+		}
+	}
+
+	result := map[string]interface{}{
+		"startTime": minTime,
+		"endTime":   maxTime,
+	}
+
+	err = json.NewEncoder(w).Encode(result)
+	if err != nil {
+		http.Error(w, "Error encoding result", http.StatusBadRequest)
+	}
+}
+
+func getAvailableAirportIds(w http.ResponseWriter, r *http.Request) {
+	collection := dbClient.Database("airports").Collection("weather")
+	results, err := collection.Distinct(context.Background(), "airportId", bson.M{})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(results)
+	if err != nil {
+		http.Error(w, "Error encoding result", http.StatusBadRequest)
+	}
+}
+
+func getAvailableMetrics(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	collection := dbClient.Database("airports").Collection("weather")
+	filter := bson.M{
+		"airportId": strings.ToUpper(params["airportIATA"]),
+	}
+	results, err := collection.Distinct(context.Background(), "sensorType", filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(results)
 	if err != nil {
 		http.Error(w, "Error encoding result", http.StatusBadRequest)
 	}
