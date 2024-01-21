@@ -52,6 +52,7 @@ func main() {
 
 // @Summary Get data between two times
 // @Description Get data for a specific metric at an airport between two times
+// @Tags Data
 // @ID getDataBetweenTwoTimes
 // @Param airportIATA path string true "The IATA code of the airport"
 // @Param metric path string true "The type of metric (e.g., pressure, temperature, wind-speed)"
@@ -136,6 +137,7 @@ type SuccessfulAverageResponse struct {
 
 // @Summary Get average value of a metric in a day
 // @Description Get the average value of a specific metric at an airport for a given date
+// @Tags Average
 // @ID getAverageForSingleTypeInDay
 // @Param airportIATA path string true "The IATA code of the airport"
 // @Param metric path string true "The type of metric (e.g., pressure, temperature, wind-speed)"
@@ -223,6 +225,7 @@ type AverageAllResponse struct {
 
 // @Summary Get average value of all metrics in a day
 // @Description Get the average value of all metrics at an airport for a given date
+// @Tags Average
 // @ID getAverageForAllTypesInDay
 // @Param airportIATA path string true "The IATA code of the airport"
 // @Param date query string true "The date in RFC3339 format"
@@ -318,6 +321,7 @@ type DateIntervalResponse struct {
 
 // @Summary Get date interval of a specific metric
 // @Description Get the date interval for a specific metric at an airport
+// @Tags Metadata
 // @ID getDateInterval
 // @Param airportIATA path string true "The IATA code of the airport"
 // @Param metric path string true "The type of metric (e.g., pressure, temperature, wind-speed)"
@@ -375,6 +379,7 @@ func getDateInterval(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary Get all available airport IDs
+// @Tags Metadata
 // @ID getAvailableAirportIds
 // @Produce json
 // @Success 200 {array} string "Successful response"
@@ -394,6 +399,7 @@ func getAvailableAirportIds(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary Get available metrics for a specific airport
+// @Tags Metadata
 // @ID getAvailableMetrics
 // @Param airportIATA path string true "The IATA code of the airport"
 // @Produce json
