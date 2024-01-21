@@ -1,10 +1,12 @@
 package main
 
 import (
+	_ "airport-weather/cmd/http-rest-server/docs"
 	dataType "airport-weather/internal/data-type"
 	db "airport-weather/internal/database"
 	"context"
 	"encoding/json"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 	"net/url"
@@ -33,8 +35,13 @@ func main() {
 	r.HandleFunc("/api/v1/metadata/airports", getAvailableAirportIds).Methods("GET")
 	r.HandleFunc("/api/v1/{airportIATA}/available-metrics", getAvailableMetrics).Methods("GET")
 
+	r.PathPrefix("/").Handler(httpSwagger.Handler(
+		httpSwagger.DeepLinking(true),
+		httpSwagger.DomID("swagger-ui"),
+	)).Methods(http.MethodGet)
+
 	handler := cors.Default().Handler(r)
-	log.Println("Server will be listeneing at", "http://localhost:8080/")
+	log.Println("Server will be listening at", "http://localhost:8080/")
 	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		log.Fatal("Error spinning up server", err)
@@ -43,6 +50,16 @@ func main() {
 
 }
 
+// @Summary Get data between two times
+// @Description Get data for a specific metric at an airport between two times
+// @ID getDataBetweenTwoTimes
+// @Param airportIATA path string true "The IATA code of the airport"
+// @Param metric path string true "The type of metric (e.g., pressure, temperature, wind-speed)"
+// @Param startTime query string true "The start time in RFC3339 format"
+// @Param endTime query string true "The end time in RFC3339 format"
+// @Produce json
+// @Success 200 {array} dataType.DataType "Successful response"
+// @Router /api/v1/{airportIATA}/metric/{metric} [get]
 func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	startTimeParam := r.URL.Query().Get("startTime")
@@ -112,6 +129,20 @@ func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type SuccessfulAverageResponse struct {
+	Average float64 `json:"average"`
+	Unit    string  `json:"unit"`
+}
+
+// @Summary Get average value of a metric in a day
+// @Description Get the average value of a specific metric at an airport for a given date
+// @ID getAverageForSingleTypeInDay
+// @Param airportIATA path string true "The IATA code of the airport"
+// @Param metric path string true "The type of metric (e.g., pressure, temperature, wind-speed)"
+// @Param date query string true "The date in RFC3339 format"
+// @Produce json
+// @Success 200 {object} SuccessfulAverageResponse "Successful response"
+// @Router /api/v1/{airportIATA}/metric/{metric}/average [get]
 func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	dateParam := r.URL.Query().Get("date")
@@ -184,6 +215,20 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type AverageAllResponse struct {
+	Pressure    *float64 `json:"pressure,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	WindSpeed   *float64 `json:"wind-speed,omitempty"`
+}
+
+// @Summary Get average value of all metrics in a day
+// @Description Get the average value of all metrics at an airport for a given date
+// @ID getAverageForAllTypesInDay
+// @Param airportIATA path string true "The IATA code of the airport"
+// @Param date query string true "The date in RFC3339 format"
+// @Produce json
+// @Success 200 {object} AverageAllResponse "Successful response"
+// @Router /api/v1/{airportIATA}/metrics/average [get]
 func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	dateParam := r.URL.Query().Get("date")
@@ -266,6 +311,19 @@ func getAverageForAllTypesInDay(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type DateIntervalResponse struct {
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+}
+
+// @Summary Get date interval of a specific metric
+// @Description Get the date interval for a specific metric at an airport
+// @ID getDateInterval
+// @Param airportIATA path string true "The IATA code of the airport"
+// @Param metric path string true "The type of metric (e.g., pressure, temperature, wind-speed)"
+// @Produce json
+// @Success 200 {object} DateIntervalResponse "Successful response"
+// @Router /api/v1/{airportIATA}/metric/{metric}/date-range [get]
 func getDateInterval(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	collection := dbClient.Database("airports").Collection("weather")
@@ -316,6 +374,11 @@ func getDateInterval(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary Get all available airport IDs
+// @ID getAvailableAirportIds
+// @Produce json
+// @Success 200 {array} string "Successful response"
+// @Router /api/v1/metadata/airports [get]
 func getAvailableAirportIds(w http.ResponseWriter, r *http.Request) {
 	collection := dbClient.Database("airports").Collection("weather")
 	results, err := collection.Distinct(context.Background(), "airportId", bson.M{})
@@ -330,6 +393,12 @@ func getAvailableAirportIds(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary Get available metrics for a specific airport
+// @ID getAvailableMetrics
+// @Param airportIATA path string true "The IATA code of the airport"
+// @Produce json
+// @Success 200 {array} string "Successful response"
+// @Router /api/v1/{airportIATA}/available-metrics [get]
 func getAvailableMetrics(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	collection := dbClient.Database("airports").Collection("weather")

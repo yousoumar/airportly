@@ -1,0 +1,184 @@
+definitions:
+  data_type.DataType:
+    properties:
+      airportId:
+        type: string
+      sensorId:
+        type: integer
+      sensorType:
+        type: string
+      timestamp:
+        type: string
+      value:
+        type: number
+    type: object
+  main.AverageAllResponse:
+    properties:
+      pressure:
+        type: number
+      temperature:
+        type: number
+      wind-speed:
+        type: number
+    type: object
+  main.DateIntervalResponse:
+    properties:
+      endTime:
+        type: string
+      startTime:
+        type: string
+    type: object
+  main.SuccessfulAverageResponse:
+    properties:
+      average:
+        type: number
+      unit:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/{airportIATA}/available-metrics:
+    get:
+      operationId: getAvailableMetrics
+      parameters:
+      - description: The IATA code of the airport
+        in: path
+        name: airportIATA
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Get available metrics for a specific airport
+  /api/v1/{airportIATA}/metric/{metric}:
+    get:
+      description: Get data for a specific metric at an airport between two times
+      operationId: getDataBetweenTwoTimes
+      parameters:
+      - description: The IATA code of the airport
+        in: path
+        name: airportIATA
+        required: true
+        type: string
+      - description: The type of metric (e.g., pressure, temperature, wind-speed)
+        in: path
+        name: metric
+        required: true
+        type: string
+      - description: The start time in RFC3339 format
+        in: query
+        name: startTime
+        required: true
+        type: string
+      - description: The end time in RFC3339 format
+        in: query
+        name: endTime
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            items:
+              $ref: '#/definitions/data_type.DataType'
+            type: array
+      summary: Get data between two times
+  /api/v1/{airportIATA}/metric/{metric}/average:
+    get:
+      description: Get the average value of a specific metric at an airport for a
+        given date
+      operationId: getAverageForSingleTypeInDay
+      parameters:
+      - description: The IATA code of the airport
+        in: path
+        name: airportIATA
+        required: true
+        type: string
+      - description: The type of metric (e.g., pressure, temperature, wind-speed)
+        in: path
+        name: metric
+        required: true
+        type: string
+      - description: The date in RFC3339 format
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            $ref: '#/definitions/main.SuccessfulAverageResponse'
+      summary: Get average value of a metric in a day
+  /api/v1/{airportIATA}/metric/{metric}/date-range:
+    get:
+      description: Get the date interval for a specific metric at an airport
+      operationId: getDateInterval
+      parameters:
+      - description: The IATA code of the airport
+        in: path
+        name: airportIATA
+        required: true
+        type: string
+      - description: The type of metric (e.g., pressure, temperature, wind-speed)
+        in: path
+        name: metric
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            $ref: '#/definitions/main.DateIntervalResponse'
+      summary: Get date interval of a specific metric
+  /api/v1/{airportIATA}/metrics/average:
+    get:
+      description: Get the average value of all metrics at an airport for a given
+        date
+      operationId: getAverageForAllTypesInDay
+      parameters:
+      - description: The IATA code of the airport
+        in: path
+        name: airportIATA
+        required: true
+        type: string
+      - description: The date in RFC3339 format
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            $ref: '#/definitions/main.AverageAllResponse'
+      summary: Get average value of all metrics in a day
+  /api/v1/metadata/airports:
+    get:
+      operationId: getAvailableAirportIds
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Get all available airport IDs
+swagger: "2.0"
