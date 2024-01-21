@@ -5,11 +5,12 @@ import (
 	mqttClient "airport-weather/internal/mqtt-client"
 	"encoding/json"
 	"fmt"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"math/rand"
 	"os"
 	"strconv"
 	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 func main() {
@@ -42,7 +43,10 @@ func main() {
 func PublishSensorValue(topic string, client mqtt.Client, sensorId int64, sensorValueName string, airportIata string, baseValue float64) {
 	noiseAmplitude := 0.5
 
-	interval := 5
+	minInterval := 10
+	maxInterval := 20
+	interval := rand.Intn(maxInterval-minInterval+1) + minInterval
+
 	value := baseValue
 
 	for {

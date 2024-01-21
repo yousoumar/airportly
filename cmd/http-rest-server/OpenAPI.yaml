@@ -1,0 +1,175 @@
+openapi: 3.0.0
+info:
+  title: Airport Weather API
+  version: 1.0.0
+paths:
+  /api/v1/{airportIATA}/metric/{metric}:
+    get:
+      summary: Get data between two times
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The IATA code of the airport
+        - name: metric
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of metric (e.g., pressure, temperature, wind-speed)
+        - name: startTime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: The start time in RFC3339 format
+        - name: endTime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: The end time in RFC3339 format
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: |
+                [
+                  {
+                    "timestamp": "2024-01-20T12:00:00Z",
+                    "value": 25.5
+                  },
+                  {
+                    "timestamp": "2024-01-20T13:00:00Z",
+                    "value": 26.0
+                  }
+                ]
+        '400':
+          description: Bad request
+  /api/v1/{airportIATA}/metric/{metric}/average:
+    get:
+      summary: Get average value of a metric in a day
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The IATA code of the airport
+        - name: metric
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of metric (e.g., pressure, temperature, wind-speed)
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: The date in RFC3339 format
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: |
+                {
+                  "average": 26.8,
+                  "unit": "temperature"
+                }
+        '400':
+          description: Bad request
+  /api/v1/{airportIATA}/metrics/average:
+    get:
+      summary: Get average value of all metrics in a day
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The IATA code of the airport
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: The date in RFC3339 format
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: |
+                {
+                  "pressure": 1015.2,
+                  "temperature": 26.8,
+                  "wind-speed": 10.2
+                }
+        '400':
+          description: Bad request
+  /api/v1/{airportIATA}/metric/{metric}/date-range:
+    get:
+      summary: Get date interval of a specific metric
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The IATA code of the airport
+        - name: metric
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The type of metric (e.g., pressure, temperature, wind-speed)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: |
+                {
+                  "startTime": "2024-01-20T00:00:00Z",
+                  "endTime": "2024-01-20T23:59:59Z"
+                }
+        '400':
+          description: Bad request
+  /api/v1/metadata/airports:
+    get:
+      summary: Get all available airport IDs
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: |
+                ["JFK", "LAX", "ORD"]
+  /api/v1/{airportIATA}/available-metrics:
+    get:
+      summary: Get available metrics for a specific airport
+      parameters:
+        - name: airportIATA
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The IATA code of the airport
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example: |
+                ["pressure", "temperature", "wind-speed"]
+        '400':
+          description: Bad request
