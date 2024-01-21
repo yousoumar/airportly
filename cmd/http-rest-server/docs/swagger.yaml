@@ -1,8 +1,19 @@
 definitions:
+  data_type.DataType:
+    properties:
+      airportId:
+        type: string
+      sensorId:
+        type: integer
+      sensorType:
+        type: string
+      timestamp:
+        type: string
+      value:
+        type: number
+    type: object
   main.AverageAllResponse:
     properties:
-      error:
-        type: string
       pressure:
         type: number
       temperature:
@@ -16,19 +27,6 @@ definitions:
         type: string
       startTime:
         type: string
-    type: object
-  main.ResponseData:
-    properties:
-      airportId:
-        type: string
-      sensorId:
-        type: integer
-      sensorType:
-        type: string
-      timestamp:
-        type: string
-      value:
-        type: number
     type: object
   main.SuccessfulAverageResponse:
     properties:
@@ -91,7 +89,7 @@ paths:
           description: Successful response
           schema:
             items:
-              $ref: '#/definitions/main.ResponseData'
+              $ref: '#/definitions/data_type.DataType'
             type: array
       summary: Get data between two times
   /api/v1/{airportIATA}/metric/{metric}/average:

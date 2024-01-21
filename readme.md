@@ -12,7 +12,7 @@ You need to have `Docker` and `Docker Compose` running on your machine. Also, yo
 
 ### Spin up MongoDB and Mosquitto
 
-We use MongoDB as database, and Mosquitto as MQQT server. We run and connect them to other parts of the project using `Docker Compose`.
+We use MongoDB as database, and Mosquitto as MQTT server. We run and connect them to other parts of the project using `Docker Compose`.
 
 Open a terminal in the project root folder and run:
 
@@ -54,13 +54,12 @@ cd ./cmd/database-recorder && go run database-recorder.go
 
 ### Let's access the data in MongoDB with a REST API
 
-We expose the stored data through a REST API running on `http://localhost:8080`. Open another terminal in the project root folder and run:
+We expose the stored data through a REST API running on `http://localhost:8080` (where you get an OpenAPI based documentation). Open another terminal in the project root folder and run:
 
 ```sh
 cd ./cmd/http-rest-server && go run http-rest-server.go
 ```
-
-There is an OpenAPI based documentation of the API in `cmd/http-rest-server/OpenAPI.yaml`.
+If you ever update the comments in the code, the doc should be regenerated with: `swag init -g http-rest-server.go --parseDependency true`.
 
 ### Getting alerts when metrics reach some threshold
 

@@ -23,14 +23,6 @@ import (
 
 var dbClient *mongo.Client
 
-type ResponseData struct {
-	SensorId   int64     `json:"sensorId"`
-	AirportId  string    `json:"airportId"`
-	SensorType string    `json:"sensorType"`
-	Value      float64   `json:"value"`
-	Timestamp  time.Time `json:"timestamp"`
-}
-
 func main() {
 	log.Println("Starting the server...")
 	dbClient = db.GetDbClient()
@@ -43,14 +35,13 @@ func main() {
 	r.HandleFunc("/api/v1/metadata/airports", getAvailableAirportIds).Methods("GET")
 	r.HandleFunc("/api/v1/{airportIATA}/available-metrics", getAvailableMetrics).Methods("GET")
 
-	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
+	r.PathPrefix("/").Handler(httpSwagger.Handler(
 		httpSwagger.DeepLinking(true),
-		httpSwagger.DocExpansion("none"),
 		httpSwagger.DomID("swagger-ui"),
 	)).Methods(http.MethodGet)
 
 	handler := cors.Default().Handler(r)
-	log.Println("Server will be listeneing at", "http://localhost:8080/")
+	log.Println("Server will be listening at", "http://localhost:8080/")
 	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		log.Fatal("Error spinning up server", err)
@@ -67,7 +58,7 @@ func main() {
 // @Param startTime query string true "The start time in RFC3339 format"
 // @Param endTime query string true "The end time in RFC3339 format"
 // @Produce json
-// @Success 200 {array} ResponseData "Successful response"
+// @Success 200 {array} dataType.DataType "Successful response"
 // @Router /api/v1/{airportIATA}/metric/{metric} [get]
 func getDataBetweenTwoTimes(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
@@ -225,10 +216,9 @@ func getAverageForSingleTypeInDay(w http.ResponseWriter, r *http.Request) {
 }
 
 type AverageAllResponse struct {
-	Pressure     *float64 `json:"pressure,omitempty"`
-	Temperature  *float64 `json:"temperature,omitempty"`
-	WindSpeed    *float64 `json:"wind-speed,omitempty"`
-	ErrorMessage *string  `json:"error,omitempty"`
+	Pressure    *float64 `json:"pressure,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	WindSpeed   *float64 `json:"wind-speed,omitempty"`
 }
 
 // @Summary Get average value of all metrics in a day

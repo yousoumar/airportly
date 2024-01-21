@@ -108,7 +108,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.ResponseData"
+                                "$ref": "#/definitions/data_type.DataType"
                             }
                         }
                     }
@@ -226,12 +226,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "data_type.DataType": {
+            "type": "object",
+            "properties": {
+                "airportId": {
+                    "type": "string"
+                },
+                "sensorId": {
+                    "type": "integer"
+                },
+                "sensorType": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
         "main.AverageAllResponse": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string"
-                },
                 "pressure": {
                     "type": "number"
                 },
@@ -251,26 +268,6 @@ const docTemplate = `{
                 },
                 "startTime": {
                     "type": "string"
-                }
-            }
-        },
-        "main.ResponseData": {
-            "type": "object",
-            "properties": {
-                "airportId": {
-                    "type": "string"
-                },
-                "sensorId": {
-                    "type": "integer"
-                },
-                "sensorType": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "number"
                 }
             }
         },
