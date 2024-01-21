@@ -57,6 +57,8 @@ paths:
               type: string
             type: array
       summary: Get available metrics for a specific airport
+      tags:
+      - Metadata
   /api/v1/{airportIATA}/metric/{metric}:
     get:
       description: Get data for a specific metric at an airport between two times
@@ -92,6 +94,8 @@ paths:
               $ref: '#/definitions/data_type.DataType'
             type: array
       summary: Get data between two times
+      tags:
+      - Data
   /api/v1/{airportIATA}/metric/{metric}/average:
     get:
       description: Get the average value of a specific metric at an airport for a
@@ -121,6 +125,8 @@ paths:
           schema:
             $ref: '#/definitions/main.SuccessfulAverageResponse'
       summary: Get average value of a metric in a day
+      tags:
+      - Average
   /api/v1/{airportIATA}/metric/{metric}/date-range:
     get:
       description: Get the date interval for a specific metric at an airport
@@ -144,6 +150,8 @@ paths:
           schema:
             $ref: '#/definitions/main.DateIntervalResponse'
       summary: Get date interval of a specific metric
+      tags:
+      - Metadata
   /api/v1/{airportIATA}/metrics/average:
     get:
       description: Get the average value of all metrics at an airport for a given
@@ -168,6 +176,8 @@ paths:
           schema:
             $ref: '#/definitions/main.AverageAllResponse'
       summary: Get average value of all metrics in a day
+      tags:
+      - Average
   /api/v1/metadata/airports:
     get:
       operationId: getAvailableAirportIds
@@ -181,4 +191,6 @@ paths:
               type: string
             type: array
       summary: Get all available airport IDs
+      tags:
+      - Metadata
 swagger: "2.0"
