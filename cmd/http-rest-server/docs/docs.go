@@ -20,6 +20,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Metadata"
+                ],
                 "summary": "Get all available airport IDs",
                 "operationId": "getAvailableAirportIds",
                 "responses": {
@@ -39,6 +42,9 @@ const docTemplate = `{
             "get": {
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Metadata"
                 ],
                 "summary": "Get available metrics for a specific airport",
                 "operationId": "getAvailableMetrics",
@@ -69,6 +75,9 @@ const docTemplate = `{
                 "description": "Get data for a specific metric at an airport between two times",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Data"
                 ],
                 "summary": "Get data between two times",
                 "operationId": "getDataBetweenTwoTimes",
@@ -121,6 +130,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Average"
+                ],
                 "summary": "Get average value of a metric in a day",
                 "operationId": "getAverageForSingleTypeInDay",
                 "parameters": [
@@ -162,6 +174,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Metadata"
+                ],
                 "summary": "Get date interval of a specific metric",
                 "operationId": "getDateInterval",
                 "parameters": [
@@ -195,6 +210,9 @@ const docTemplate = `{
                 "description": "Get the average value of all metrics at an airport for a given date",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Average"
                 ],
                 "summary": "Get average value of all metrics in a day",
                 "operationId": "getAverageForAllTypesInDay",

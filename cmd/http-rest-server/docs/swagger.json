@@ -9,6 +9,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Metadata"
+                ],
                 "summary": "Get all available airport IDs",
                 "operationId": "getAvailableAirportIds",
                 "responses": {
@@ -28,6 +31,9 @@
             "get": {
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Metadata"
                 ],
                 "summary": "Get available metrics for a specific airport",
                 "operationId": "getAvailableMetrics",
@@ -58,6 +64,9 @@
                 "description": "Get data for a specific metric at an airport between two times",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Data"
                 ],
                 "summary": "Get data between two times",
                 "operationId": "getDataBetweenTwoTimes",
@@ -110,6 +119,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Average"
+                ],
                 "summary": "Get average value of a metric in a day",
                 "operationId": "getAverageForSingleTypeInDay",
                 "parameters": [
@@ -151,6 +163,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Metadata"
+                ],
                 "summary": "Get date interval of a specific metric",
                 "operationId": "getDateInterval",
                 "parameters": [
@@ -184,6 +199,9 @@
                 "description": "Get the average value of all metrics at an airport for a given date",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Average"
                 ],
                 "summary": "Get average value of all metrics in a day",
                 "operationId": "getAverageForAllTypesInDay",
