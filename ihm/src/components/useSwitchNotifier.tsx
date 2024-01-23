@@ -17,14 +17,15 @@ function useSwitchNotifier(airport: string) {
             }
         } else {
             const newMqttClient = mqtt.connect('ws://localhost:9001/');
-
+            console.log("Connected");
+            
             newMqttClient.on('connect', () => {
                 newMqttClient?.subscribe(`airport/${airport}/alert/#`);
             });
 
             newMqttClient.on('message', (_topic, message) => {
-                const newAlert = JSON.parse(message.toString());
-                toast.warn(newAlert?.message)
+                const newAlert = JSON.parse(message.toString());                
+                toast.warn(newAlert?.Message)
             });
 
             setMqttClient(newMqttClient);
