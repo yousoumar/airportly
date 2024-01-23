@@ -16,8 +16,10 @@
     "@mui/x-charts": "^6.18.7",
     "@mui/x-date-pickers": "^6.19.0",
     "dayjs": "^1.11.10",
+    "mqtt": "^5.3.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-toastify": "^10.0.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Switch } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { Slide, ToastContainer } from "react-toastify";
+
 import useApp from "./useApp";
 
 import dayjs from "dayjs";
 import "./App.css";
+import SwitchNotifier from "./components/SwitchNotifier";
 
 
 function App() {
@@ -111,7 +114,9 @@ function App() {
           }}
           defaultValue={dayjs(dateRangeRef.current?.startTime)}
         />
-        <Switch value="checkedA" inputProps={{ 'aria-label': 'Switch A' }} />
+        <Box sx={{ border: 0.5, borderColor: 'grey.400', minWidth: 120, padding:1, borderRadius: 1}}>
+          <SwitchNotifier airport={airport} />
+        </Box>
 
       </Box>
       {!data?.length && !error ? (
@@ -140,6 +145,19 @@ function App() {
         </Box>
       ) : null}
       {error && <div style={{ marginTop: "6rem" }}>{error}</div>}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition={Slide}
+      />
     </main>
   );
 }

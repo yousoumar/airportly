@@ -17,7 +17,7 @@ const useApp = () => {
     const [metric, setMetric] = useState("");
     const [metrics, setMetrics] = useState<string[]>([]);
     const [airport, setAirport] = useState("");
-    const [error, setError] = useState("");
+    const [error, setError] = useState("");    
 
     const dateRangeRef = useRef<{ startTime: string; endTime: string }>({
         startTime: "",
@@ -92,13 +92,10 @@ const useApp = () => {
                     setMetric(metrics[0]);
                 }
 
-                console.log(metrics);
                 const dateRange = await fetchDateInterval(airport, metrics[0]);
-                console.log(dateRange);
                 setMetrics(metrics);
 
                 setDateRange(dateRange);
-                console.log(dateRange);
                 dateRangeRef.current = dateRange;
 
                 const response = await fetch(
