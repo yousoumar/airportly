@@ -6,6 +6,7 @@ services:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
     ports:
       - "1985:1985"
+      - "9001:9001"
 
   mongo:
     image: mongo
