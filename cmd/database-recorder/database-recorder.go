@@ -1,9 +1,9 @@
 package main
 
 import (
-	dataType "airport-weather/internal/data-type"
-	db "airport-weather/internal/database"
-	mqttClient "airport-weather/internal/mqtt-client"
+	dataType "airportly/internal/data-type"
+	db "airportly/internal/database"
+	mqttClient "airportly/internal/mqtt-client"
 	"context"
 	"encoding/json"
 	"log"

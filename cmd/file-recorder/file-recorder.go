@@ -1,8 +1,8 @@
 package main
 
 import (
-	dataType "airport-weather/internal/data-type"
-	mqttClient "airport-weather/internal/mqtt-client"
+	dataType "airportly/internal/data-type"
+	mqttClient "airportly/internal/mqtt-client"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
