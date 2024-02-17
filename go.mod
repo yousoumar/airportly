@@ -1,4 +1,4 @@
-module airport-weather
+module airportly
 
 go 1.21.4
 

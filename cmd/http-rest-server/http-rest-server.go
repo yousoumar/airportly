@@ -1,9 +1,9 @@
 package main
 
 import (
-	_ "airport-weather/cmd/http-rest-server/docs"
-	dataType "airport-weather/internal/data-type"
-	db "airport-weather/internal/database"
+	_ "airportly/cmd/http-rest-server/docs"
+	dataType "airportly/internal/data-type"
+	db "airportly/internal/database"
 	"context"
 	"encoding/json"
 	httpSwagger "github.com/swaggo/http-swagger"

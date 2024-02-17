@@ -9,8 +9,8 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 
-	dataType "airport-weather/internal/data-type"
-	mqttClient "airport-weather/internal/mqtt-client"
+	dataType "airportly/internal/data-type"
+	mqttClient "airportly/internal/mqtt-client"
 )
 
 type Alert struct {
